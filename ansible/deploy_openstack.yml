@@ -64,3 +64,8 @@
   hosts: designate
   roles:
   - {role: 'designate', tags: 'designate'}
+
+- name: Install ironic
+  hosts: ironic
+  roles:
+  - {role: 'ironic', tags: 'ironic'}

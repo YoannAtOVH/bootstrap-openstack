@@ -1,0 +1,63 @@
+---
+- name: import generic tasks
+  import_tasks: common.yml
+
+- name: include vars
+  include_vars: vars/vars.yml
+
+- name: install ironic
+  apt:
+    name: ['ironic-api', 'ironic-conductor']
+    state: latest
+
+- name: configure ironic
+  ini_file:
+    path: /etc/ironic/ironic.conf
+    section: "{{item.section}}"
+    option: "{{item.option}}"
+    value: "{{item.value}}"
+  with_items:
+    - { section: "database", option: "connection", value: "mysql+pymysql://ironic:{{password}}@mysql/ironic" }
+    - { section: "DEFAULT", option: "transport_url", value: "rabbit://openstack:{{password}}@rabbit" }
+    - { section: "DEFAULT", option: "enabled_hardware_types", value: "ovhapi" }
+    - { section: "DEFAULT", option: "enabled_management_interfaces", value: "noop" }
+    - { section: "DEFAULT", option: "default_management_interface", value: "noop" }
+    - { section: "DEFAULT", option: "enabled_power_interfaces", value: "ovhapi" }
+    - { section: "DEFAULT", option: "default_power_interface", value: "ovhapi" }
+    - { section: "DEFAULT", option: "enabled_boot_interfaces", value: "pxe" }
+    - { section: "DEFAULT", option: "default_boot_interface", value: "pxe" }
+    - { section: "conductor", option: "api_url", value: "http://{{hostvars['ironic']['ansible_host']}}:6385" }
+    # - { section: "service_catalog", option: "auth_url", value: "http://keystone:5000" }
+    # - { section: "service_catalog", option: "auth_url", value: "http://keystone:5000" }
+    # - { section: "service_catalog", option: "auth_type", value: "password" }
+    # - { section: "service_catalog", option: "project_domain_name", value: "Default" }
+    # - { section: "service_catalog", option: "user_domain_name", value: "Default" }
+    # - { section: "service_catalog", option: "project_name", value: "service" }
+    # - { section: "service_catalog", option: "username", value: "ironic" }
+    # - { section: "service_catalog", option: "password", value: "{{password}}" }
+    # - { section: "service_catalog", option: "region_name", value: "RegionOne" }
+    # - { section: "service_catalog", option: "project_name", value: "service" }
+    - { section: "keystone_authtoken", option: "www_authenticate_uri", value: "http://keystone:5000" }
+    - { section: "keystone_authtoken", option: "auth_url", value: "http://keystone:5000" }
+    - { section: "keystone_authtoken", option: "memcached_servers", value: "keystone:11211" }
+    - { section: "keystone_authtoken", option: "auth_type", value: "password" }
+    - { section: "keystone_authtoken", option: "project_domain_name", value: "Default" }
+    - { section: "keystone_authtoken", option: "user_domain_name", value: "Default" }
+    - { section: "keystone_authtoken", option: "project_name", value: "service" }
+    - { section: "keystone_authtoken", option: "username", value: "ironic" }
+    - { section: "keystone_authtoken", option: "password", value: "{{password}}" }
+    - { section: "neutron", option: "url", value: "http://neutron:9696" }
+    - { section: "neutron", option: "auth_url", value: "http://keystone:5000/v3" }
+    - { section: "neutron", option: "auth_type", value: "password" }
+    - { section: "neutron", option: "project_domain_name", value: "Default" }
+    - { section: "neutron", option: "user_domain_name", value: "Default" }
+    - { section: "neutron", option: "region_name", value: "RegionOne" }
+    - { section: "neutron", option: "project_name", value: "service" }
+    - { section: "neutron", option: "username", value: "neutron" }
+    - { section: "neutron", option: "password", value: "{{password}}" }
+    - { section: "neutron", option: "service_metadata_proxy", value: "true" }
+    - { section: "neutron", option: "metadata_proxy_shared_secret", value: "{{password}}" }
+    - { section: "glance", option: "api_servers", value: "http://glance:9292" }
+    - { section: "cinder", option: "os_region_name", value: "RegionOne" }
+  notify:
+    - restart ironic

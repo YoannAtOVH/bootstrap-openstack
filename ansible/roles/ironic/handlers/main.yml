@@ -1,0 +1,8 @@
+- name: restart ironic
+  service:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - "ironic-api"
+    - "ironic-conductor"
+

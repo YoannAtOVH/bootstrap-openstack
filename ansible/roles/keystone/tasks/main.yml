@@ -124,6 +124,7 @@
     - glance
     - cinder
     - designate
+    - ironic
 - name: add admin role to users for service project
   shell: |
     source /root/openrc_admin
@@ -142,6 +143,7 @@
     - glance
     - cinder
     - designate
+    - ironic
 - name: create services
   shell: |
     source /root/openrc_admin
@@ -160,6 +162,7 @@
     - dns
     - volumev2
     - volumev3
+    - baremetal
 - name: create services endpoints for nova
   shell: |
     source /root/openrc_admin
@@ -255,6 +258,21 @@
   args:
     executable: /bin/bash
     creates: /root/.ansible_endpoint_designate_{{item}}
+  with_items:
+    - public
+    - admin
+    - internal
+
+- name: create services endpoints for ironic
+  shell: |
+    source /root/openrc_admin
+    openstack endpoint create \
+      --region RegionOne \
+      baremetal {{item}} http://{{hostvars['ironic']['public_ip']}}:6385
+    [ $? -eq 0 ] && touch /root/.ansible_endpoint_ironic_{{item}}
+  args:
+    executable: /bin/bash
+    creates: /root/.ansible_endpoint_ironic_{{item}}
   with_items:
     - public
     - admin
