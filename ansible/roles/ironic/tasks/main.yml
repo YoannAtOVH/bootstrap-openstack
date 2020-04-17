@@ -61,3 +61,10 @@
     - { section: "cinder", option: "os_region_name", value: "RegionOne" }
   notify:
     - restart ironic
+
+- name: initiate ironic database
+  shell: su -s /bin/sh -c "ironic-dbsync create_schema" ironic && touch /root/.ansible_initiate_ironic_db
+  args:
+    creates: /root/.ansible_initiate_ironic_db
+  notify:
+    - restart ironic
