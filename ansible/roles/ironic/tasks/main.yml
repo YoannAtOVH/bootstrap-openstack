@@ -19,24 +19,7 @@
   with_items:
     - { section: "database", option: "connection", value: "mysql+pymysql://ironic:{{password}}@mysql/ironic" }
     - { section: "DEFAULT", option: "transport_url", value: "rabbit://openstack:{{password}}@rabbit" }
-    - { section: "DEFAULT", option: "enabled_hardware_types", value: "ovhapi" }
-    - { section: "DEFAULT", option: "enabled_management_interfaces", value: "noop" }
-    - { section: "DEFAULT", option: "default_management_interface", value: "noop" }
-    - { section: "DEFAULT", option: "enabled_power_interfaces", value: "ovhapi" }
-    - { section: "DEFAULT", option: "default_power_interface", value: "ovhapi" }
-    - { section: "DEFAULT", option: "enabled_boot_interfaces", value: "pxe" }
-    - { section: "DEFAULT", option: "default_boot_interface", value: "pxe" }
-    - { section: "conductor", option: "api_url", value: "http://{{hostvars['ironic']['ansible_host']}}:6385" }
-    # - { section: "service_catalog", option: "auth_url", value: "http://keystone:5000" }
-    # - { section: "service_catalog", option: "auth_url", value: "http://keystone:5000" }
-    # - { section: "service_catalog", option: "auth_type", value: "password" }
-    # - { section: "service_catalog", option: "project_domain_name", value: "Default" }
-    # - { section: "service_catalog", option: "user_domain_name", value: "Default" }
-    # - { section: "service_catalog", option: "project_name", value: "service" }
-    # - { section: "service_catalog", option: "username", value: "ironic" }
-    # - { section: "service_catalog", option: "password", value: "{{password}}" }
-    # - { section: "service_catalog", option: "region_name", value: "RegionOne" }
-    # - { section: "service_catalog", option: "project_name", value: "service" }
+    - { section: "conductor", option: "api_url", value: "http://ironic:6385" }
     - { section: "keystone_authtoken", option: "www_authenticate_uri", value: "http://keystone:5000" }
     - { section: "keystone_authtoken", option: "auth_url", value: "http://keystone:5000" }
     - { section: "keystone_authtoken", option: "memcached_servers", value: "keystone:11211" }
@@ -63,7 +46,7 @@
     - restart ironic
 
 - name: initiate ironic database
-  shell: su -s /bin/sh -c "ironic-dbsync create_schema" ironic && touch /root/.ansible_initiate_ironic_db
+  shell: su -s /bin/sh -c "ironic-dbsync upgrade" ironic && touch /root/.ansible_initiate_ironic_db
   args:
     creates: /root/.ansible_initiate_ironic_db
   notify:
